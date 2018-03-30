@@ -35,4 +35,3 @@ res <- combined.analysis(data, num.exp=3, vp.pos = 65923803)
 
 
 }
-

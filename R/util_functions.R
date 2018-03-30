@@ -102,7 +102,7 @@ single.analysis <- function(data, vp.pos, wSize = 21, qWd = 1.5, qWr = 1, minDis
   vp.pos <- sort(vp.pos)
 
 
-  db <- get.single.background(data=data[[1]], num.exp = 1, vp.pos=vp.pos)
+  db <- get.single.background(data=data, num.exp = 1, vp.pos=vp.pos)
   #running mean over the data
   db[,2] <- caTools::runmean(x=db[,2],k=wSize,endrule="mean")
   #running mean over the isotonic regression line
@@ -177,7 +177,6 @@ combined.analysis <- function( data, num.exp = 0, vp.pos, wSize = 21, alphaFDR =
 
 	#add a small pseudo count so that there will be no divide/0 errors
 	pseudoCount <- apply(db[,2:(num.exp+1)], 2, non.zero.quantile, probs=0.05)
-	print(pseudoCount)
 	pseudoCount <- sum(pseudoCount)/num.exp
 	#calculate the ratio of the data with the regression line
 	ratio <- cbind(db[,1],(dbR[,2:(num.exp+1)]+pseudoCount)/(dbR[,(2:(num.exp+1))+num.exp]+pseudoCount))
@@ -313,8 +312,50 @@ get.single.background <- function(data, num.exp = 1, vp.pos) {
 
 }
 
+#' Single experiment Jaccard similarity calculation
+#'
+#' @param data list containing the 4C/CapC data in two column format, an additional element num.exp describes the number of experiments
+#' @param vp.pos viewpoint position, this can be a single value or a two values to analyse a viewpoint region
+#' @param wSize number of fragments in a window
+#' @param alphaFDR false-discovery rate threshold
+#' @param qWd threshold for difference from the background
+#' @param qWr threshold for ratio over the background
+#' @param minDist minimal region around the viewpoint to exclude for the significance analysis
+#' @description Function for identifying interaction peaks above a background distribution. A list of 4C/Capture-C datasets are required as input. The viewpoint position is given in the vp.pos argument.
+#'
+#' @return a matrix containing the pairwise Jaccard similarity scores
+#' @export
+#'
+#' @examples
+#' data <- readMultiple(f[1:3], vp.pos = 65923803)
+#' res <- combined.analysis(data, num.exp=3, vp.pos = 65923803)
+#'
+#'
+#'
+pairwise.jaccard <- function(data, vp.pos, wSize = 21, qWd = 1.5, qWr = 1, minDist = 15e3) {
+  num.exp <- data$num.exp
+  js.mat <- matrix(0, nrow=num.exp, ncol=num.exp)
+  diag(js.mat) <- 1
+  res.list <- list()
+  #first calculate the single experiment peak calling
+  for( i in 1:num.exp){
+    res.list[[i]] <- single.analysis(data[[i]], vp.pos = vp.pos, wSize = wSize, qWd = qWd, qWr = qWr, minDist = minDist)
+  }
+  for(i in 1:(num.exp-1)){
+    for(j in (i+1):num.exp){
+      js <- jaccardSim(res.list[[i]]$peak, res.list[[j]]$peak)
+      js.mat[i,j] <- js; js.mat[j,i] <- js
+    }
+  }
+  js.mat
+}
 
-
+#calculate the jaccard index for two vectors
+jaccardSim <- function( p1, p2 ){
+  intersection <- sum(p1 %in% p2)
+  union <- length(unique(c(p1,p2)))
+  intersection/union
+}
 
 ##################################################################
 #General functions

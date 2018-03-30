@@ -19,4 +19,3 @@ merged matrix containing: 1. the position of the fragments, 2:(n+1) the data, (n
 \description{
 Combine list of experiments into a matrix with the background model
 }
-

@@ -19,4 +19,3 @@ A list containing two column matrices with the position and the normalized cover
 \description{
 Read in a list of wig files
 }
-

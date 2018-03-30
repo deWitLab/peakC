@@ -22,4 +22,3 @@ Wrapper function for reading files that are formatted as wig files. The data is 
 \examples{
 data <- readqWig(file="alpha.wig", window = 700e3, vp.pos = 32224333 )
 }
-

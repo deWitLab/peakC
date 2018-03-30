@@ -8,4 +8,4 @@ Maintainer: Elzo de Wit <e.d.wit@nki.nl>
 Description: 4C/Capture-C data show a non-uniform distribution. By employing monotonic regression, an emperical background model is estimated and increases above this background model are called as peaks (interactions).
 License: GPL
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

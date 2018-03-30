@@ -4,7 +4,7 @@
 \alias{readMultiple}
 \title{Read in a list of matrix files}
 \usage{
-readMultiple(files, vp.pos, window = 7e+05)
+readMultiple(files, vp.pos, window = 7e+05, normalize = T)
 }
 \arguments{
 \item{files}{vector containg paths to two column matrix files}
@@ -19,4 +19,3 @@ A list containing two column matrices with the position and the normalized cover
 \description{
 Read in a list of matrix files
 }
-

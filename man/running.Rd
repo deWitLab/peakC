@@ -17,4 +17,3 @@ a numeric vector with the windowed means
 \description{
 Title
 }
-

@@ -21,4 +21,3 @@ Nothing, a plot is drawn
 \description{
 Take a result from the combined.analysis function and generate a chromosomal map of the result
 }
-

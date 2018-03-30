@@ -4,7 +4,7 @@
 \alias{readMatrix}
 \title{Quickly read and normalize a matrix formatted file}
 \usage{
-readMatrix(file, window, vp.pos)
+readMatrix(file, window, vp.pos, normalize = T)
 }
 \arguments{
 \item{file}{path to a two column file}
@@ -22,4 +22,3 @@ Wrapper function for reading files that are formatted as wig files. The data is 
 \examples{
 
 }
-

@@ -17,4 +17,3 @@ vector, shortened by (n - 1) elements
 \description{
 remove n/2 elements from the front and the end
 }
-

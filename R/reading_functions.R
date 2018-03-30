@@ -67,7 +67,9 @@ readMultiColumnFile <- function(file, vp.pos, window=700e3, num.exp=4){
   #make a list out of the matrix to make it compatible with the peak caller
   data.list <- list()
   for( i in 2:(num.exp+1)){
-    data.list[[i-1]] <- d[,c(1,i)]
+    d.sub <- d[,c(1,i)]
+    colnames(d.sub) <- c("frag_pos", "frag_score")
+    data.list[[i-1]] <- d.sub
   }
   data.list$num.exp = length(data.list)
   data.list
@@ -88,7 +90,7 @@ readMultiColumnFile <- function(file, vp.pos, window=700e3, num.exp=4){
 #' @examples
 #' data <- readqWig(file="alpha.wig", window = 700e3, vp.pos = 32224333 )
 readqWig <- function( file, window, vp.pos ){
-  wig <- scan(file, skip = 2)
+  wig <- scan(file, skip = 2, quiet = T)
   d <- matrix(wig, ncol=2, byrow=T)
   d <- d[-which.max(d[,2]),]
   d <- d[d[,1]!=vp.pos,]
@@ -112,6 +114,7 @@ readqWig <- function( file, window, vp.pos ){
     }
 
   }
+  colnames(d) <- c("frag_pos", "frag_score")
   d
 }
 
@@ -128,7 +131,7 @@ readqWig <- function( file, window, vp.pos ){
 #' @examples
 #'
 readMatrix <- function( file, window, vp.pos, normalize = T ){
-  vec <- scan(file)
+  vec <- scan(file, quiet = T)
   d <- matrix(vec, ncol=2, byrow=T)
   d <- d[-which.max(d[,2]),]
   d <- d[d[,1]!=vp.pos,]
@@ -154,5 +157,7 @@ readMatrix <- function( file, window, vp.pos, normalize = T ){
     }
 
   }
+  #add names to the columns
+  colnames(d) <- c("frag_pos", "frag_score")
   d
 }
