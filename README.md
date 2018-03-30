@@ -12,8 +12,8 @@ You need The following thing to install and run peakC:
 
 ```
 R (any recent version)
-isotone package (from CRAN)
-devtools (for installation from github, not required for running the package)
+`isotone` package (from CRAN)
+`devtools` (for installation from github, not required for running the package)
 ```
 
 ### Installing
