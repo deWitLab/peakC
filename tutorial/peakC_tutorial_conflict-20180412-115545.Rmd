@@ -3,15 +3,15 @@ title: "peakC tutorial"
 author: "Geert Geeven & Elzo de Wit"
 date: "April 4, 2018"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 bibliography: library.bib
 ---
 
 It is becoming increasingly clear that the 3D organization of the genome plays an important in the regulation of genes. To measure the 3D conformation of the genome various 3C-based have been developed (4C/5C/Hi-C/Capture-C/Promoter-Capture-Hi-C). 4C, Capture-C and PCHiC measure the contact frequency of a single region ("viewpoint" or "bait") with the rest of the genome. 
 
-The main goal of these experiments is to identify regions (which we will call "peaks") whose contact frequencies with the viewpoint region are enriched over the background. Because of the non-uniform distribution of background contact frequencies this is not a trivial exercise. In order to model the background, we assume that the contact frequency only decreases with an increase in distance from the viewpoint (i.e. monotonically decreases). peakC achieves this by performing monotonic regression using the `isotone` package. For a more detailed discussion of the theoretical background and performance of the package we refer the reader to our paper: (reference pending). The current tutorial focuses on how to  perform 4C/Capture-C/PCHiC data analysis using peakC.
+The main goal of these experiments is to identify regions (which we will call "peaks") whose contact frequencies with the viewpoint region are enriched over the background ("peaks"). Because of the non-uniform distribution of background contact frequencies this is not a trivial exercise. In order to model the background, we assume that the contact frequency only decreases with an increase in distance from the viewpoint (i.e. monotonically decreases). peakC achieves this by performing monotonic regression using the `isotone` package. For a more detailed discussion of the theoretical background and performance of the package we refer the reader to our paper: (reference pending). The current tutorial focuses on how to  perform 4C/Capture-C/PCHiC data analysis using peakC.
 
 In order to load the package into the R environment run the following command:
 ```{r}
@@ -56,7 +56,7 @@ The expression of the alpha-globin gene is extremely high in this tissue and is 
 ##### 4C analysis with replicate experiments
 In order to identify peaks we *strongly* advise using replicates. For this tutorial we have analyze data from a 4C experiment of the alpha-globin gene which was done in triplicate. The peak calling consists of two steps. 1) Reading the data (shown above). 2) Statistical analysis using the `combined.analysis` function. A third optional step is to plot the 4C data and the peaks that were identified.
 
-Below we show the simplest way to run the peakC peak caller.  Note that as default it runs with a 700kb flanking region (`window`), a running window size of 21 and an FDR threshold of 0.1. For details on the required and optional parameters see the man page. We refer the reader to our paper for guidance on how to set appropriate significance thresholds.
+Below we show the simplest way to run the peakC peak caller.  Note that as default it runs with a 700kb flanking region (`window`), a running window size of 21 (`wSize`) and an FDR threshold of 0.1 (`alphaFDR`). For details on the required and optional parameters see the man page. We refer the reader to our paper for guidance on how to set appropriate significance thresholds.
 
 ```{r}
 viewpoint <- 32224333
