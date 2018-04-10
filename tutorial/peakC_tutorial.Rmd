@@ -2,7 +2,10 @@
 title: "peakC tutorial"
 author: "Geert Geeven & Elzo de Wit"
 date: "April 4, 2018"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 bibliography: library.bib
 ---
 
@@ -129,5 +132,38 @@ First we plot the raw data in the second column, next we add the background mode
 `res$p.value` contains for every fragment a rank product probability score whether the fragment is a peak fragment.
 
 `res$sel` contains the fragments that are used in the analysis; fragments too close to the viewpoint are not used in the analysis. This distance can be set using the `minDist` parameter in `combined.analysis`.
+
+------------------------------
+
+##### Quality control
+
+To determine the similarity between experiments we have written a function that performs a pairwise similarity analysis. We use the Jaccard index as a similarity metric. For the Jaccard index the overlap or intersection of the peak fragments is divided by the union of the fragments. Please read our companion paper for a more detailed analysis.
+
+First we will read in a dataset with six replicates of the Oacyl viewpoint in mouse embryonic stem cells.
+```{r}
+inFiles <- paste0("data/peakC_tutorial_Oacyl_6_reps_mappedReads.txt/set2_viewpoint_1_replicate_",1:6,".txt.gz")
+
+# the genomic position of the Oacyl viewpoint
+vp.pos <- 65923816
+
+# read from 2 column matrix files
+data <- readMultiple(files=inFiles,vp.pos=vp.pos,window=1.2e6)
+```
+
+After reading in the 6 replicates in the data structure we can run the dataset through the `pairwise.jaccard` function. Note that this function has the same input parameters as the `single.analysis` function. See below what precise parameters we have chosen for the current analysis.
+
+```{r}
+# set threshold parameters for peakC in single experiments
+wSize <- 21; qWd <- 2.5; qWr <- 1.0; minDist <- 15e3
+jac.mat <- pairwise.jaccard(data = data, vp.pos = vp.pos, wSize = wSize, qWd = qWd, qWr = qWr, minDist = minDist )
+```
+
+The result is a symmetrical matrix `jac.mat`, in which the Jaccard indices for all pairwise comparisons are stored.
+
+```{r}
+jac.mat
+```
+
+Note that by changing the parameters `qWd`, `qWr` and `wSize` it is possible to increase or decrease the Jaccard similarity. Making the analysis more or less stringent.
 
 #References
