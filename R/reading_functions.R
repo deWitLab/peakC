@@ -12,13 +12,23 @@
 #' @examples
 readMultipleWig <- function( files, vp.pos, window = 700e3 ){
   data.list <- list()
+  quality <- list()
   i <- 1
   for(f in files){
     d <- readqWig(f, vp.pos=vp.pos, window=window)
-    data.list[[i]] <- d
+    if(i == 1){
+      quality <- d$quality
+    }else{
+      quality$percentage.capture.100kb[i] <- d$quality$percentage.capture.100kb
+      quality$percentage.capture.1Mb[i] <- d$quality$percentage.capture.1Mb
+      quality$percentage.capture.cis[i] <- d$quality$percentage.capture.cis
+      quality$total.read.cis[i] <- d$quality$total.read.cis
+    }
+    data.list[[i]] <- d$data
     i <- i+1
   }
   data.list$num.exp = length(data.list)
+  data.list$quality = quality
   data.list
 }
 
@@ -34,13 +44,23 @@ readMultipleWig <- function( files, vp.pos, window = 700e3 ){
 #' @examples
 readMultiple <- function( files, vp.pos, window = 700e3, normalize=T ){
   data.list <- list()
+  quality <- list()
   i <- 1
   for(f in files){
     d <- readMatrix(f, vp.pos=vp.pos, window=window, normalize=normalize)
-    data.list[[i]] <- d
+    data.list[[i]] <- d$data
+    if(i == 1){
+        quality <- d$quality
+    }else{
+      quality$percentage.capture.100kb[i] <- d$quality$percentage.capture.100kb
+      quality$percentage.capture.1Mb[i] <- d$quality$percentage.capture.1Mb
+      quality$percentage.capture.cis[i] <- d$quality$percentage.capture.cis
+      quality$total.read.cis[i] <- d$quality$total.read.cis
+    }
     i <- i+1
   }
   data.list$num.exp = length(data.list)
+  data.list$quality = quality
   data.list
 }
 
@@ -94,12 +114,17 @@ readqWig <- function( file, window, vp.pos ){
   d <- matrix(wig, ncol=2, byrow=T)
   d <- d[-which.max(d[,2]),]
   d <- d[d[,1]!=vp.pos,]
-  #select only the non-blind fragments
+
+  #calculate the quality metrics for the experiment
+  quality <- quality.metrics(d, vp.pos)
+
+  #check if the file contains any data
   if(sum(d[,2]) > 0){
     d[,2] <- 1e6*d[,2]/sum(d[,2])
   }else{
     stop("Data file does not contain any data")
   }
+
   if(window > 0){
     d <- d[d[,1] > vp.pos - window & d[,1] < vp.pos + window,]
   }else{
@@ -115,7 +140,8 @@ readqWig <- function( file, window, vp.pos ){
 
   }
   colnames(d) <- c("frag_pos", "frag_score")
-  d
+  #d
+  list(data=d, quality=quality)
 }
 
 #qwigly read a 4C file (with only one chromosome)
@@ -135,6 +161,9 @@ readMatrix <- function( file, window, vp.pos, normalize = T ){
   d <- matrix(vec, ncol=2, byrow=T)
   d <- d[-which.max(d[,2]),]
   d <- d[d[,1]!=vp.pos,]
+
+  #calculate the quality metrics for the experiment
+  quality <- quality.metrics(d, vp.pos)
 
   if(normalize){
     if(sum(d[,2]) > 0){
@@ -159,5 +188,26 @@ readMatrix <- function( file, window, vp.pos, normalize = T ){
   }
   #add names to the columns
   colnames(d) <- c("frag_pos", "frag_score")
-  d
+  #d
+  list(data=d, quality=quality)
+}
+
+###############################################
+#Quality metrics function
+###############################################
+
+#internal function for calculating the quality metrics for a specific
+#experiment
+#the quality metrics that are assessed are:
+#% captured fragments within the first 100kb
+#% captured fragments within the first 1Mb
+#% captured fragments total chromosome
+#total number of reads in cis
+quality.metrics <- function(data, vp.pos){
+  quality <- list()
+  quality$percentage.capture.100kb <- 100*mean( data[data[,1] > vp.pos-100e3 & data[,1] < vp.pos+100e3,2] > 0)
+  quality$percentage.capture.1Mb   <- 100*mean( data[data[,1] > vp.pos-1e6   & data[,1] < vp.pos+1e6,2] > 0)
+  quality$percentage.capture.cis   <- 100*mean(data[,2] > 0)
+  quality$total.read.cis <- sum(data[,2])
+  quality
 }

@@ -24,10 +24,10 @@ The basic data structure for a (single) 4C/Capture-C/PCHiC experiment is a two-c
 
 ```{r}
 data <- readqWig("data/alpha-globin_FL_1_cis.wig.gz", vp.pos=32224333, window=700e3)
-head(data)
+head(data$data)
 ```
 
-This is what the data structure looks like. The `readqWig` function has selected the fragments in the 700kb genomic region downstream and upstream of the viewpoint (position set by `vp.pos`). The flanking window size can be set with `window`.  The coverage score is automatically normalized to 1 million intrachromosomal reads (reads in cis). 
+The data structure contains an entry for the 4C data `data$data` and the quality metrics of the experiment (`data$quality`). The quality metrics will be discussed at the end of the tutorial. The `readqWig` function has selected the fragments in the 700kb genomic region downstream and upstream of the viewpoint (position set by `vp.pos`). The flanking window size can be set with `window`.  The coverage score is automatically normalized to 1 million intrachromosomal reads (reads in cis). 
 
 **Nota bene**
 As you can see in the data structure the 1<sup>st</sup>, 4<sup>th</sup> and 6<sup>th</sup> row have zeroes in the data. For peakC to function properly it is necessary to leave the zeroes (i.e. uncovered regions) in the dataset. A lack of captured fragments is also information that is required for the proper calculation of the background model (see below).
@@ -43,7 +43,7 @@ Alternative functions for reading in data are:
 A plot of the raw 4C data looks like this:
 
 ```{r echo=FALSE}
-plot(data, type='h', xlab="chromosomal position", ylab="4C signal")
+plot(data$data, type='h', xlab="chromosomal position", ylab="4C signal")
 ```
 
 The expression of the alpha-globin gene is extremely high in this tissue and is regulated by enhancers that flank this gene. We can already see the promoter-enhancer contacts appearing in the raw data. But peakC can be used to detect the "peak" regions that contact the viewpoint regions significantly above the background frequency.
@@ -83,7 +83,7 @@ data <- readqWig("data/alpha-globin_FL_1_cis.wig.gz", vp.pos=32224333, window=70
 and the run the command for identifying the peaks
 
 ```{r}
-res <- single.analysis(data, vp.pos=32224333, qWd = 2.5)
+res <- single.analysis(data$data, vp.pos=32224333, qWd = 2.5)
 ```
 
 TBoth qWd (difference with respect to background) and qWr (ratio) can be varied to increase or lower the stringency of the peak calling. To plot the significant fragments, we again use the `plot_C` function.
@@ -158,7 +158,13 @@ vp.pos <- 65923816
 data <- readMultiple(files=inFiles,vp.pos=vp.pos,window=1.2e6)
 ```
 
-After reading in the 6 replicates in the data structure we can run the dataset through the `pairwise.jaccard` function. Note that this function has the same input parameters as the `single.analysis` function. See below what precise parameters we have chosen for the current analysis.
+After reading in the 6 replicates in the data structure we can take a look at the quality characteristics of the dataset. peakC report a number of quality metrics: the percentages of captured/covered fragments in the 100kb and 1Mb flanking the viewpoint and of the total covered fragments in cis (i.e. the whole chromosome of the viewpoint). Also the total number of reads in cis is also reported. Note that reads on non-viewpoint chromosomes are left out of this analysis. For the dataset that we have just read in the quality metrics are the following:
+
+```{r}
+data$quality
+```
+
+To compare the pairwise repoducibility we run the dataset through the `pairwise.jaccard` function. Note that this function has the same input parameters as the `single.analysis` function. See below what precise parameters we have chosen for the current analysis.
 
 ```{r}
 # set threshold parameters for peakC in single experiments

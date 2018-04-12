@@ -8,7 +8,7 @@ These instructions will allow you to install peakC on your local machine.
 
 ### Prerequisites
 
-You need The following thing to install and run peakC:
+You need The following software and packages to install and run peakC:
 
 ```
 R (any recent version)
