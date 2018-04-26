@@ -2,6 +2,7 @@
 
 export(combine.experiments)
 export(combined.analysis)
+export(data.frame.to.peakC)
 export(pairwise.jaccard)
 export(plot_C)
 export(readMatrix)

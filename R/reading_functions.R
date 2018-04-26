@@ -78,8 +78,17 @@ readMultiple <- function( files, vp.pos, window = 700e3, normalize=T ){
 readMultiColumnFile <- function(file, vp.pos, window=700e3, num.exp=4){
   d <- read.delim(file, h=F, stringsAsFactors=F)
   d <- d[,1:(num.exp+1)] #in case there are weird empty columns
+
+  quality <- list()
+
   #normalize to 1M reads
   for( i in 1:num.exp){
+    #calculate and store the quality characteristics
+    q.temp <- quality.metrics(d[,c(1,i+1)], vp.pos)
+    quality$percentage.capture.100kb[i] <- q.temp$percentage.capture.100kb
+    quality$percentage.capture.1Mb[i] <- q.temp$percentage.capture.1Mb
+    quality$percentage.capture.cis[i] <- q.temp$percentage.capture.cis
+    quality$total.read.cis[i] <- q.temp$total.read.cis
     num.reads <- sum(d[,i+1], na.rm=T)
     d[,i+1] <- 1e6*d[,i+1]/num.reads
   }
@@ -92,6 +101,47 @@ readMultiColumnFile <- function(file, vp.pos, window=700e3, num.exp=4){
     data.list[[i-1]] <- d.sub
   }
   data.list$num.exp = length(data.list)
+  data.list$quality = quality
+  data.list
+}
+
+#' Transform a data frame to a list that can be used as input for peakC
+#'
+#' @param df data.frame containing the experimental data
+#' @param vp.pos position of the viewpoint
+#' @param window flanking sequence to be considered in the analysis
+#' @param num.exp Number of experiments
+#'
+#' @return A list containing two column matrices with the position and the normalized coverage score
+#' @export
+#'
+#' @examples
+data.frame.to.peakC <- function( df, vp.pos, window, num.exp ){
+  df <- df[,1:(num.exp+1)] #in case there are weird empty columns
+
+  quality <- list()
+
+  #normalize to 1M reads
+  for( i in 1:num.exp){
+    #calculate and store the quality characteristics
+    q.temp <- quality.metrics(df[,c(1,i+1)], vp.pos)
+    quality$percentage.capture.100kb[i] <- q.temp$percentage.capture.100kb
+    quality$percentage.capture.1Mb[i] <- q.temp$percentage.capture.1Mb
+    quality$percentage.capture.cis[i] <- q.temp$percentage.capture.cis
+    quality$total.read.cis[i] <- q.temp$total.read.cis
+    num.reads <- sum(df[,i+1], na.rm=T)
+    df[,i+1] <- 1e6*df[,i+1]/num.reads
+  }
+  df <- df[df[,1] > vp.pos-window & df[,1] < vp.pos+window,]
+  #make a list out of the matrix to make it compatible with the peak caller
+  data.list <- list()
+  for( i in 2:(num.exp+1)){
+    d.sub <- df[,c(1,i)]
+    colnames(d.sub) <- c("frag_pos", "frag_score")
+    data.list[[i-1]] <- d.sub
+  }
+  data.list$num.exp = length(data.list)
+  data.list$quality = quality
   data.list
 }
 
