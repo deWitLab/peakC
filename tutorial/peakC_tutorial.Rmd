@@ -3,9 +3,9 @@ title: "peakC tutorial"
 author: "Geert Geeven & Elzo de Wit"
 date: "April 4, 2018"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 bibliography: library.bib
 ---
 
@@ -86,7 +86,7 @@ and the run the command for identifying the peaks
 res <- single.analysis(data$data, vp.pos=32224333, qWd = 2.5)
 ```
 
-TBoth qWd (difference with respect to background) and qWr (ratio) can be varied to increase or lower the stringency of the peak calling. To plot the significant fragments, we again use the `plot_C` function.
+Both `qWd` (difference with respect to background) and `qWr` (ratio) can be varied to increase or lower the stringency of the peak calling. To plot the significant fragments, we again use the `plot_C` function.
 
 ```{r}
 plot_C(res)
